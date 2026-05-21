@@ -1,0 +1,179 @@
+:root {
+  --bg-main: #101820;
+  --bg-panel: rgba(19, 34, 44, 0.76);
+  --bg-panel-solid: #182b38;
+  --text-main: #f7fafc;
+  --text-muted: #b8cad6;
+  --accent: #f4b942;
+  --accent-2: #50c9a6;
+  --danger: #ff6b6b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text-main);
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(244, 185, 66, 0.15), transparent 40%),
+    radial-gradient(circle at 85% 0%, rgba(80, 201, 166, 0.18), transparent 35%),
+    linear-gradient(140deg, #0b141b, #101820 45%, #0f2530);
+  overflow-x: hidden;
+}
+
+.bg-decor {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(20px);
+  z-index: -1;
+  opacity: 0.4;
+}
+
+.bg-decor-1 {
+  width: 320px;
+  height: 320px;
+  background: var(--accent);
+  top: -100px;
+  left: -100px;
+}
+
+.bg-decor-2 {
+  width: 300px;
+  height: 300px;
+  background: var(--accent-2);
+  bottom: -120px;
+  right: -80px;
+}
+
+.hero-card,
+.panel-card,
+.loading-card {
+  background: var(--bg-panel);
+  border: 1px solid rgba(247, 250, 252, 0.12);
+  border-radius: 20px;
+  padding: 1.25rem;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  animation: fadeUp 450ms ease both;
+}
+
+.hero-card {
+  padding: 1.75rem;
+  background:
+    linear-gradient(130deg, rgba(244, 185, 66, 0.12), rgba(80, 201, 166, 0.09)),
+    var(--bg-panel-solid);
+}
+
+.eyebrow {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 0.75rem;
+}
+
+.hero-title {
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  font-size: clamp(1.5rem, 2.8vw, 2.4rem);
+  line-height: 1.1;
+}
+
+.hero-subtitle {
+  color: var(--text-muted);
+  max-width: 680px;
+}
+
+.hero-badge {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  color: var(--accent-2);
+  font-weight: 700;
+  font-size: 0.86rem;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.section-subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.btn-analyze {
+  background: linear-gradient(120deg, var(--accent), #ffd67a);
+  border: none;
+  color: #17202a;
+  font-weight: 800;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.btn-analyze:hover,
+.btn-analyze:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(244, 185, 66, 0.35);
+  color: #17202a;
+}
+
+.loading-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(244, 185, 66, 0.15);
+}
+
+#insightsList {
+  padding-left: 1rem;
+}
+
+#insightsList li {
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.03);
+  --bs-table-hover-bg: rgba(80, 201, 166, 0.08);
+}
+
+.badge-focus {
+  background: rgba(80, 201, 166, 0.18);
+  color: #97e8d0;
+  border: 1px solid rgba(80, 201, 166, 0.45);
+}
+
+.badge-competitor {
+  background: rgba(255, 107, 107, 0.18);
+  color: #ffabab;
+  border: 1px solid rgba(255, 107, 107, 0.35);
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-card,
+  .panel-card,
+  .loading-card {
+    padding: 1rem;
+    border-radius: 16px;
+  }
+}
