@@ -101,17 +101,7 @@ The app includes basic checks for:
 - Gemini failures
 - Unexpected backend exceptions
 
-## 6) Quick 2-Minute Demo Script
-
-1. Start app and open homepage.
-2. Upload one shelf image.
-3. Click Analyze Shelf.
-4. Narrate:
-   - "AI detected brand facings and shelf share in seconds."
-   - "Here are estimated counts and competitor presence."
-   - "These insights can guide store-level execution."
-
-## 7) Sample Demo Screenshots
+## 6) Sample Demo Screenshots
 
 A real screenshot is best captured after you run locally with your own test image.
 Suggested captures:
@@ -122,6 +112,6 @@ Suggested captures:
 You can store them in static/screenshots/ for presentation use.
 This repo also includes a lightweight placeholder visual at static/screenshots/demo-placeholder.svg.
 
-## 8) Optional OpenAI Vision Swap
+## 7) Optional OpenAI Vision Swap
 
 If needed, replace services/gemini_service.py logic with OpenAI Vision API calls and keep the same JSON response shape.
