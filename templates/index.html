@@ -117,6 +117,38 @@
               <canvas id="countChart" height="120" class="mt-2"></canvas>
             </div>
           </div>
+
+          <div class="col-12">
+            <div class="panel-card">
+              <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+                <h2 class="section-title mb-0">CY26 RES Compliance Feedback</h2>
+                <div class="compliance-score-badge" id="complianceScoreBadge">
+                  <span id="complianceScore">--</span>
+                  <span class="compliance-score-suffix">&thinsp;/ 100</span>
+                </div>
+              </div>
+              <div class="row g-3">
+                <div class="col-12 col-md-4">
+                  <div class="feedback-card feedback-strengths">
+                    <div class="feedback-card-title">&#10003; Strengths</div>
+                    <ul id="strengthsList" class="feedback-list"></ul>
+                  </div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div class="feedback-card feedback-improvements">
+                    <div class="feedback-card-title">&#9888; Improvement Areas</div>
+                    <ul id="improvementsList" class="feedback-list"></ul>
+                  </div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div class="feedback-card feedback-actions">
+                    <div class="feedback-card-title">&#8594; Priority Actions</div>
+                    <ul id="actionsList" class="feedback-list"></ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </main>

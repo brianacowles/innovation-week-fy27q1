@@ -154,6 +154,51 @@ function renderCharts(brands) {
   });
 }
 
+function renderDisplayFeedback(feedback) {
+  const scoreBadge = document.getElementById("complianceScoreBadge");
+  const scoreEl = document.getElementById("complianceScore");
+  const strengthsList = document.getElementById("strengthsList");
+  const improvementsList = document.getElementById("improvementsList");
+  const actionsList = document.getElementById("actionsList");
+
+  if (!feedback) {
+    scoreEl.textContent = "--";
+    scoreBadge.className = "compliance-score-badge";
+    [strengthsList, improvementsList, actionsList].forEach((el) => (el.innerHTML = ""));
+    return;
+  }
+
+  const score = typeof feedback.compliance_score === "number" ? feedback.compliance_score : 0;
+  scoreEl.textContent = score;
+
+  scoreBadge.classList.remove("score-high", "score-mid", "score-low");
+  if (score >= 75) {
+    scoreBadge.classList.add("score-high");
+  } else if (score >= 50) {
+    scoreBadge.classList.add("score-mid");
+  } else {
+    scoreBadge.classList.add("score-low");
+  }
+
+  function fillList(el, items) {
+    el.innerHTML = "";
+    (items || []).forEach((text) => {
+      const li = document.createElement("li");
+      li.textContent = text;
+      el.appendChild(li);
+    });
+    if (!items || !items.length) {
+      const li = document.createElement("li");
+      li.textContent = "None identified.";
+      el.appendChild(li);
+    }
+  }
+
+  fillList(strengthsList, feedback.strengths);
+  fillList(improvementsList, feedback.improvement_areas);
+  fillList(actionsList, feedback.priority_actions);
+}
+
 function renderResults(data) {
   const imageUrl = `data:${data.image_mime_type};base64,${data.image_preview_base64}`;
   previewImage.src = imageUrl;
@@ -163,6 +208,7 @@ function renderResults(data) {
   renderTable(brands);
   renderInsights(data.insights || []);
   renderCharts(brands);
+  renderDisplayFeedback(data.display_feedback || null);
 
   if (data.warning) {
     showStatus(data.warning, "warning");

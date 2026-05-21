@@ -23,16 +23,49 @@ FOCUS_BRANDS = [
 
 
 PROMPT = """
-You are a retail shelf analysis assistant.
+You are a retail execution expert for Constellation Brands beer products (Modelo, Corona, Pacifico, Victoria).
 
-Analyze the uploaded beer shelf or cooler image and do the following:
-1) Identify visible beer brands, with priority for Corona, Modelo, Pacifico, Victoria, Heineken, Tecate, Bud Light, and Coors.
-2) Estimate visible product count per detected brand.
-3) Estimate shelf share percentage per brand.
-4) Provide short business insights.
+Analyze the uploaded beer shelf or cooler image and evaluate it against the CY26 Off-Premise Retail Execution Standards (RES).
 
-Return JSON only. No markdown, no extra text.
-Use this exact structure:
+=== STEP 1: BRAND DETECTION ===
+Identify all visible beer brands. Priority Constellation brands: Corona Extra, Corona Light, Modelo Especial, Modelo Chelada, Modelo Negra, Pacifico, Victoria. Also note key competitors: Heineken, Tecate, Bud Light, Coors.
+Estimate visible product count per brand and shelf share percentage.
+
+=== STEP 2: CY26 RES COMPLIANCE EVALUATION ===
+Evaluate the shelf/display against these CY26 standards:
+
+SPACE MANAGEMENT & MERCHANDISING:
+- Vertical brand blocking: each brand should occupy a vertical column (not scattered horizontally). Increases sales 20-40%.
+- Pack size order: smallest packs (6pk) on top shelf, largest packs (24pk, cases) on bottom shelf/well.
+- Cold box priority: Constellation share of cold box space should exceed their share of market.
+- Days of supply: key SKUs (Corona Extra 12pk bottle, Corona Extra 6pk bottle, Modelo Especial 12pk can, Modelo Especial 12pk bottle, Modelo Especial 18pk can, Modelo Especial 6pk bottle) must have at least 3 days of supply — thin or empty facings are a concern.
+- Single-serves: placed at eye level; highest-selling SKUs near the door handle.
+- Modelo Cheladas should be shelved with traditional beer (not isolated).
+- Pacifico should be placed adjacent to the craft beer section.
+
+DISPLAYS:
+- Displays must be properly merchandised, correctly priced, and show only 1 price point.
+- Constellation's % share of cases on display (COD) must exceed Constellation's $ share of market.
+- Corona Family and Casa Modelo (Modelo) displays must be physically separated from each other.
+- If account stocks cans, cans must appear on the display.
+- Displays should be built for every Constellation beer ad/feature.
+- Displays should be in the most impactful, highest-traffic store location.
+
+PRICING:
+- Cans must be priced below bottles of the same brand/pack size.
+- Core brands (Corona Core, Modelo Especial & Negra, Pacifico, Victoria) should be line-priced within the same pack size.
+- Value curve index: 6pk ~120, 18pk ~90, 24pk ~80 relative to 12pk price per unit.
+- All pricing must be visible and accurate for every package.
+- Modelo Chelada & Modelo AABs priced equal to or higher than Modelo 24oz can.
+
+DISTRIBUTION (SKU COVERAGE):
+- Core Gaintain SKUs that should be present: Corona Extra 6pk bottle, Modelo Especial 6pk bottle, Modelo Especial 12pk can, Modelo Especial 12pk bottle, Modelo Especial 18pk can, Modelo Especial 24oz can.
+- Note any gaps in core SKU presence.
+
+=== STEP 3: SCORING ===
+Assign an overall compliance score from 0-100 based on how well the shelf meets CY26 RES standards.
+
+Return JSON only. No markdown, no extra text. Use this exact structure:
 {
   "brands": [
     {
@@ -41,18 +74,36 @@ Use this exact structure:
       "share_percent": 40
     }
   ],
-  "summary": "Short summary sentence.",
+  "summary": "One or two sentence summary of what you see on the shelf.",
   "insights": [
-    "Insight 1",
-    "Insight 2"
-  ]
+    "Insight about Constellation performance.",
+    "Insight about competitor presence.",
+    "Insight about opportunity or risk."
+  ],
+  "display_feedback": {
+    "compliance_score": 72,
+    "strengths": [
+      "Vertical brand blocking is well executed for Modelo and Corona."
+    ],
+    "improvement_areas": [
+      "Pack size order is not followed — large packs appear above smaller ones."
+    ],
+    "priority_actions": [
+      "Move 24pk and 18pk SKUs to the bottom shelf; 6pk to the top shelf.",
+      "Ensure cans are present on any active display."
+    ]
+  }
 }
 
 Rules:
-- Keep count as integers.
-- Keep share_percent as numbers from 0 to 100.
+- count must be integers.
+- share_percent must be numbers 0-100.
+- compliance_score must be an integer 0-100.
 - Include only brands visible in the image.
-- If uncertain, make best estimate.
+- If uncertain about any standard, make a reasonable assessment based on visible evidence.
+- strengths, improvement_areas, and priority_actions should each have 2-4 specific items.
+- Be specific — reference what is actually visible in the image, not generic advice.
+- priority_actions should be sorted most impactful first.
 """.strip()
 
 
@@ -136,6 +187,24 @@ def _normalize_and_enrich(result: Dict[str, Any]) -> Dict[str, Any]:
     result["insights"] = [str(i) for i in insights][:5]
 
     result["used_mock_data"] = bool(result.get("used_mock_data", False))
+
+    # Normalize display_feedback from CY26 RES evaluation.
+    df = result.get("display_feedback", {})
+    if not isinstance(df, dict):
+        df = {}
+
+    try:
+        score = int(round(float(df.get("compliance_score", 0) or 0)))
+    except Exception:
+        score = 0
+
+    result["display_feedback"] = {
+        "compliance_score": min(100, max(0, score)),
+        "strengths": [str(s) for s in (df.get("strengths") or [])[:4]],
+        "improvement_areas": [str(s) for s in (df.get("improvement_areas") or [])[:4]],
+        "priority_actions": [str(s) for s in (df.get("priority_actions") or [])[:4]],
+    }
+
     return result
 
 
@@ -205,12 +274,29 @@ def get_mock_analysis() -> Dict[str, Any]:
 
     mock = {
         "brands": sorted(base, key=lambda x: x["count"], reverse=True),
-        "summary": "Corona leads visible shelf share, with Modelo as a strong second brand.",
+        "summary": "Corona leads visible shelf share, with Modelo as a strong second brand. Constellation portfolio holds dominant cold box presence.",
         "insights": [
-            "Eye-level space appears weighted toward Corona and Modelo.",
+            "Eye-level space appears weighted toward Corona and Modelo — consistent with core brand priority.",
             "Competitor presence is meaningful but fragmented across multiple brands.",
-            "Opportunity: increase Pacifico and Victoria facings to improve share visibility.",
+            "Opportunity: increase Pacifico and Victoria facings to strengthen portfolio depth.",
         ],
+        "display_feedback": {
+            "compliance_score": 65,
+            "strengths": [
+                "Modelo Especial and Corona Extra each hold dominant facing counts, reflecting strong core SKU support.",
+                "Constellation brands collectively occupy a majority of visible cold box space.",
+            ],
+            "improvement_areas": [
+                "Vertical brand blocking appears inconsistent — some SKUs from different brands are intermixed on the same shelf row.",
+                "Pack size order may not be followed; verify smallest packs (6pk) are on the top shelf and largest packs (24pk/cases) are on the bottom.",
+                "Pricing tags are not visible for all packages — all packages must show accurate, visible pricing per CY26 standards.",
+            ],
+            "priority_actions": [
+                "Confirm price tags are visible and accurate for every SKU on shelf — this is a key CY26 compliance requirement.",
+                "Reblock brands into clean vertical columns to act as navigational guideposts and improve shopability.",
+                "Verify that Modelo Especial 12pk can and Corona Extra 12pk bottle each have at least 3 days of supply (thin facings risk out-of-stocks on peak weekend days).",
+            ],
+        },
         "used_mock_data": True,
     }
     return _normalize_and_enrich(mock)
