@@ -4,8 +4,8 @@
   --bg-panel-solid: #182b38;
   --text-main: #f7fafc;
   --text-muted: #b8cad6;
-  --accent: #f4b942;
-  --accent-2: #50c9a6;
+  --accent: #006fb9;
+  --accent-2: #051f5f;
   --danger: #ff6b6b;
 }
 
@@ -19,8 +19,8 @@ body {
   color: var(--text-main);
   font-family: "Manrope", "Segoe UI", sans-serif;
   background:
-    radial-gradient(circle at 15% 20%, rgba(244, 185, 66, 0.15), transparent 40%),
-    radial-gradient(circle at 85% 0%, rgba(80, 201, 166, 0.18), transparent 35%),
+    radial-gradient(circle at 15% 20%, rgba(0, 111, 185, 0.2), transparent 40%),
+    radial-gradient(circle at 85% 0%, rgba(5, 31, 95, 0.3), transparent 35%),
     linear-gradient(140deg, #0b141b, #101820 45%, #0f2530);
   overflow-x: hidden;
 }
@@ -64,7 +64,7 @@ body {
 .hero-card {
   padding: 1.75rem;
   background:
-    linear-gradient(130deg, rgba(244, 185, 66, 0.12), rgba(80, 201, 166, 0.09)),
+    linear-gradient(130deg, rgba(0, 111, 185, 0.18), rgba(5, 31, 95, 0.2)),
     var(--bg-panel-solid);
 }
 
@@ -91,7 +91,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 999px;
   padding: 0.45rem 0.85rem;
-  color: var(--accent-2);
+  color: #9fc9ff;
   font-weight: 700;
   font-size: 0.86rem;
 }
@@ -110,9 +110,9 @@ body {
 }
 
 .btn-analyze {
-  background: linear-gradient(120deg, var(--accent), #ffd67a);
+  background: linear-gradient(120deg, var(--accent), #2f8fcd);
   border: none;
-  color: #17202a;
+  color: #f7fafc;
   font-weight: 800;
   transition: transform 180ms ease, box-shadow 180ms ease;
 }
@@ -120,15 +120,15 @@ body {
 .btn-analyze:hover,
 .btn-analyze:focus {
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(244, 185, 66, 0.35);
-  color: #17202a;
+  box-shadow: 0 8px 20px rgba(0, 111, 185, 0.35);
+  color: #f7fafc;
 }
 
 .loading-card {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: rgba(244, 185, 66, 0.15);
+  background: rgba(0, 111, 185, 0.16);
 }
 
 #insightsList {
@@ -143,13 +143,13 @@ body {
 .table {
   --bs-table-bg: transparent;
   --bs-table-striped-bg: rgba(255, 255, 255, 0.03);
-  --bs-table-hover-bg: rgba(80, 201, 166, 0.08);
+  --bs-table-hover-bg: rgba(0, 111, 185, 0.12);
 }
 
 .badge-focus {
-  background: rgba(80, 201, 166, 0.18);
-  color: #97e8d0;
-  border: 1px solid rgba(80, 201, 166, 0.45);
+  background: rgba(0, 111, 185, 0.2);
+  color: #9fd7ff;
+  border: 1px solid rgba(0, 111, 185, 0.5);
 }
 
 .badge-competitor {
