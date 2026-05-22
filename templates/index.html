@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Retail Shelf Analyzer</title>
+    <title>AI Retail Execution Survey Tool</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -28,18 +28,30 @@
         <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
           <div>
             <p class="eyebrow mb-2">Innovation Week Demo</p>
-            <h1 class="hero-title mb-2">AI-Powered Beer Shelf Analysis</h1>
+            <h1 class="hero-title mb-2">AI-Powered Retail Execution Survey Tool</h1>
             <p class="hero-subtitle mb-0">
-              Upload one shelf image. Get instant brand detection, estimated counts, shelf share, and business insights.
+              Capture shelves, displays, menus, or draft handles to generate objective execution
+              insights, competitive comparisons, and action-ready recommendations.
             </p>
+          </div>
+          <div class="hero-badge align-self-start align-self-md-center">
+            Under 2-minute demo flow
           </div>
         </div>
       </section>
 
       <section class="panel-card mb-4">
-        <form id="analysisForm" class="row g-3">
-          <div class="col-12 col-md-8">
-            <label for="imageInput" class="form-label">Beer shelf image</label>
+        <form id="analysisForm" class="row g-3 align-items-end">
+          <div class="col-12 col-md-4">
+            <label for="surveyType" class="form-label">Survey Type</label>
+            <select id="surveyType" class="form-select form-select-lg">
+              <option value="shelf" selected>Shelf / Cooler</option>
+              <option value="display">Display Audit</option>
+              <option value="menu">Menu Audit</option>
+              <option value="draft">Draft Handles</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-5">
             <input
               class="form-control form-control-lg"
               type="file"
@@ -47,12 +59,14 @@
               accept="image/png,image/jpeg,image/webp"
               required
             />
-            <div class="form-text">Supported: PNG, JPG, JPEG, WEBP (max 10 MB)</div>
           </div>
-          <div class="col-12 col-md-4 d-grid">
+          <div class="col-12 col-md-3 d-grid">
             <button id="analyzeBtn" type="submit" class="btn btn-analyze btn-lg">
               Analyze Shelf
             </button>
+          </div>
+          <div class="col-12">
+            <div class="form-text">Supported: PNG, JPG, JPEG, WEBP (max 10 MB)</div>
           </div>
         </form>
       </section>
@@ -71,7 +85,11 @@
           <div class="col-12 col-lg-5">
             <div class="panel-card h-100">
               <h2 class="section-title">Uploaded Image</h2>
-              <img id="previewImage" class="img-fluid rounded-4 border border-light-subtle mt-2" alt="Uploaded shelf" />
+              <img
+                id="previewImage"
+                class="img-fluid rounded-4 border border-light-subtle mt-2"
+                alt="Uploaded shelf"
+              />
             </div>
           </div>
           <div class="col-12 col-lg-7">
@@ -143,6 +161,32 @@
                   <div class="feedback-card feedback-actions">
                     <div class="feedback-card-title">&#8594; Priority Actions</div>
                     <ul id="actionsList" class="feedback-list"></ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="panel-card">
+              <h2 class="section-title mb-3">Visit Evidence</h2>
+              <div class="row g-3">
+                <div class="col-12 col-md-4">
+                  <div class="feedback-card feedback-observations">
+                    <div class="feedback-card-title">Observations</div>
+                    <ul id="observationsList" class="feedback-list"></ul>
+                  </div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div class="feedback-card feedback-opportunities">
+                    <div class="feedback-card-title">Opportunities</div>
+                    <ul id="opportunitiesList" class="feedback-list"></ul>
+                  </div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div class="feedback-card feedback-evidence">
+                    <div class="feedback-card-title">Proof Checklist</div>
+                    <ul id="evidenceList" class="feedback-list"></ul>
                   </div>
                 </div>
               </div>

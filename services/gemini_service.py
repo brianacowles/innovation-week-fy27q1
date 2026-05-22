@@ -21,8 +21,10 @@ FOCUS_BRANDS = [
     "Coors",
 ]
 
+SURVEY_TYPES = {"shelf", "display", "menu", "draft"}
 
-PROMPT = """
+
+SHELF_PROMPT = """
 You are a retail execution expert for Constellation Brands beer products (Modelo, Corona, Pacifico, Victoria).
 
 Analyze the uploaded beer shelf or cooler image and evaluate it against the CY26 Off-Premise Retail Execution Standards (RES).
@@ -105,6 +107,96 @@ Rules:
 - Be specific — reference what is actually visible in the image, not generic advice.
 - priority_actions should be sorted most impactful first.
 """.strip()
+
+DISPLAY_PROMPT = """
+You are a retail execution expert for Constellation Brands beer products.
+
+Analyze the uploaded display image and evaluate beer display execution quality.
+
+Return JSON only with this structure:
+{
+    "brands": [
+        {"name": "Corona", "count": 12, "share_percent": 35}
+    ],
+    "summary": "One or two sentence summary.",
+    "insights": ["Insight 1", "Insight 2"],
+    "display_feedback": {
+        "compliance_score": 70,
+        "strengths": ["Strength 1", "Strength 2"],
+        "improvement_areas": ["Gap 1", "Gap 2"],
+        "priority_actions": ["Action 1", "Action 2"]
+    },
+    "survey_findings": {
+        "observations": ["Observation 1", "Observation 2"],
+        "opportunities": ["Opportunity 1", "Opportunity 2"],
+        "evidence_checklist": ["Display location captured", "Pricing visible"]
+    }
+}
+
+Rules:
+- Brands: include visible beer brands and estimated case/facing counts on the display.
+- compliance_score: integer 0-100.
+- observations/opportunities/evidence_checklist: 2-5 concise, specific bullets each.
+""".strip()
+
+MENU_PROMPT = """
+You are a retail execution analyst for on-premise menu audits.
+
+Analyze the uploaded menu image for Constellation and competitor beer presence.
+
+Return JSON only with this structure:
+{
+    "brands": [
+        {"name": "Modelo", "count": 3, "share_percent": 30}
+    ],
+    "summary": "One or two sentence summary.",
+    "insights": ["Insight 1", "Insight 2"],
+    "survey_findings": {
+        "observations": ["Observation 1", "Observation 2"],
+        "opportunities": ["Opportunity 1", "Opportunity 2"],
+        "evidence_checklist": ["Menu section captured", "Prices readable"]
+    }
+}
+
+Rules:
+- count should represent number of visible menu mentions/listings per brand.
+- share_percent should represent estimated share of menu mentions.
+- If visible, include pricing-related insights in observations.
+- Keep insights specific to what is visible, not generic.
+""".strip()
+
+DRAFT_PROMPT = """
+You are a retail execution analyst for draft handle audits.
+
+Analyze the uploaded tap handle photo for brand presence and tap share.
+
+Return JSON only with this structure:
+{
+    "brands": [
+        {"name": "Pacifico", "count": 2, "share_percent": 20}
+    ],
+    "summary": "One or two sentence summary.",
+    "insights": ["Insight 1", "Insight 2"],
+    "survey_findings": {
+        "observations": ["Observation 1", "Observation 2"],
+        "opportunities": ["Opportunity 1", "Opportunity 2"],
+        "evidence_checklist": ["All tap handles visible", "Brand names readable"]
+    }
+}
+
+Rules:
+- count should represent number of visible tap handles per brand.
+- share_percent should represent estimated share of tap lineup.
+- Highlight Constellation draft presence and whitespace opportunity.
+- Keep outputs concise and evidence-based.
+""".strip()
+
+PROMPTS_BY_SURVEY_TYPE = {
+        "shelf": SHELF_PROMPT,
+        "display": DISPLAY_PROMPT,
+        "menu": MENU_PROMPT,
+        "draft": DRAFT_PROMPT,
+}
 
 
 DEFAULT_MODEL_CANDIDATES = [
@@ -205,6 +297,16 @@ def _normalize_and_enrich(result: Dict[str, Any]) -> Dict[str, Any]:
         "priority_actions": [str(s) for s in (df.get("priority_actions") or [])[:4]],
     }
 
+    findings = result.get("survey_findings", {})
+    if not isinstance(findings, dict):
+        findings = {}
+
+    result["survey_findings"] = {
+        "observations": [str(s) for s in (findings.get("observations") or [])[:5]],
+        "opportunities": [str(s) for s in (findings.get("opportunities") or [])[:5]],
+        "evidence_checklist": [str(s) for s in (findings.get("evidence_checklist") or [])[:5]],
+    }
+
     return result
 
 
@@ -302,8 +404,16 @@ def get_mock_analysis() -> Dict[str, Any]:
     return _normalize_and_enrich(mock)
 
 
-def analyze_beer_shelf_image(image_bytes: bytes, filename: str = "upload.jpg") -> Dict[str, Any]:
-    """Call Gemini Vision with the shelf image and return structured analysis JSON."""
+def analyze_visit_image(
+    image_bytes: bytes,
+    filename: str = "upload.jpg",
+    survey_type: str = "shelf",
+) -> Dict[str, Any]:
+    """Call Gemini Vision for a survey type and return structured analysis JSON."""
+    normalized_survey_type = survey_type.strip().lower() if survey_type else "shelf"
+    if normalized_survey_type not in SURVEY_TYPES:
+        normalized_survey_type = "shelf"
+
     api_key = os.getenv("GEMINI_API_KEY", "").strip()
 
     if not api_key:
@@ -329,7 +439,7 @@ def analyze_beer_shelf_image(image_bytes: bytes, filename: str = "upload.jpg") -
                 model = genai.GenerativeModel(model_name)
                 response = model.generate_content(
                     [
-                        PROMPT,
+                        PROMPTS_BY_SURVEY_TYPE[normalized_survey_type],
                         {
                             "mime_type": mime_type,
                             "data": image_bytes,
@@ -344,11 +454,13 @@ def analyze_beer_shelf_image(image_bytes: bytes, filename: str = "upload.jpg") -
                 normalized = _normalize_and_enrich(parsed)
                 normalized["used_mock_data"] = False
                 normalized["model_used"] = model_name
+                normalized["survey_type"] = normalized_survey_type
                 return normalized
             except Exception as model_exc:
                 errors.append(f"{model_name}: {str(model_exc)}")
 
         fallback = get_mock_analysis()
+        fallback["survey_type"] = normalized_survey_type
         attempted = ", ".join(model_candidates[:6])
         error_preview = " | ".join(errors[:2]) if errors else "No model error details available."
         fallback["warning"] = (
@@ -361,5 +473,11 @@ def analyze_beer_shelf_image(image_bytes: bytes, filename: str = "upload.jpg") -
 
     except Exception as exc:
         fallback = get_mock_analysis()
+        fallback["survey_type"] = normalized_survey_type
         fallback["warning"] = f"Gemini setup failed. Showing mock analysis. Details: {str(exc)}"
         return fallback
+
+
+def analyze_beer_shelf_image(image_bytes: bytes, filename: str = "upload.jpg") -> Dict[str, Any]:
+    """Backward-compatible wrapper for existing shelf analyzer usage."""
+    return analyze_visit_image(image_bytes=image_bytes, filename=filename, survey_type="shelf")

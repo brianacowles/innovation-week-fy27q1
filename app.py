@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request
 
-from services.gemini_service import analyze_beer_shelf_image, get_mock_analysis
+from services.gemini_service import analyze_visit_image, get_mock_analysis
 
 # Load environment variables from .env if present.
 load_dotenv()
@@ -42,13 +42,15 @@ def analyze():
 
     try:
         image_bytes = uploaded_file.read()
+        survey_type = request.form.get("survey_type", "shelf")
 
         if not image_bytes:
             return jsonify({"error": "Uploaded file is empty."}), 400
 
-        analysis_result = analyze_beer_shelf_image(
+        analysis_result = analyze_visit_image(
             image_bytes=image_bytes,
             filename=uploaded_file.filename,
+            survey_type=survey_type,
         )
 
         # Return a small preview string so frontend can render the uploaded image.
