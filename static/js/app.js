@@ -96,14 +96,14 @@ function renderCharts(brands) {
   const shares = brands.map((b) => b.share_percent);
 
   const colorPalette = [
-    "#006FB9",
-    "#051F5F",
-    "#2F8FCD",
-    "#4AA9E0",
-    "#7BC3E8",
-    "#0B2E8A",
-    "#3D5FB0",
-    "#6F88C9",
+    "#1E90FF",
+    "#FF6B6B",
+    "#FFD93D",
+    "#6BCB77",
+    "#9D4EDD",
+    "#00C2D1",
+    "#F77F00",
+    "#FF4DA6" 
   ];
 
   destroyCharts();

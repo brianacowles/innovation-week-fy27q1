@@ -115,6 +115,7 @@ body {
   color: #f7fafc;
   font-weight: 800;
   transition: transform 180ms ease, box-shadow 180ms ease;
+  align-self: center;
 }
 
 .btn-analyze:hover,
@@ -204,12 +205,12 @@ body {
 
 .compliance-score-badge.score-mid {
   border-color: rgba(244, 185, 66, 0.6);
-  color: var(--accent);
+  color: rgba(244, 185, 66, 0.6);;
 }
 
 .compliance-score-badge.score-low {
   border-color: rgba(255, 107, 107, 0.6);
-  color: var(--danger);
+  color: rgba(255, 107, 107, 0.6);
 }
 
 .feedback-card {
@@ -242,7 +243,7 @@ body {
 }
 
 .feedback-strengths .feedback-card-title  { color: #50c9a6; }
-.feedback-improvements .feedback-card-title { color: var(--accent); }
+.feedback-improvements .feedback-card-title { color: rgba(244, 185, 66, 0.6); }
 .feedback-actions .feedback-card-title  { color: #5bc0eb; }
 
 .feedback-list {
