@@ -126,6 +126,15 @@ Return JSON only with this structure:
         "improvement_areas": ["Gap 1", "Gap 2"],
         "priority_actions": ["Action 1", "Action 2"]
     },
+    "pricing": [
+        {
+            "brand_or_sku": "Modelo Especial 12pk",
+            "package": "12pk can",
+            "price_text": "$16.99",
+            "price_value": 16.99,
+            "confidence": 0.88
+        }
+    ],
     "survey_findings": {
         "observations": ["Observation 1", "Observation 2"],
         "opportunities": ["Opportunity 1", "Opportunity 2"],
@@ -136,6 +145,8 @@ Return JSON only with this structure:
 Rules:
 - Brands: include visible beer brands and estimated case/facing counts on the display.
 - compliance_score: integer 0-100.
+- pricing: extract as many visible price tags as possible and map to likely brand/SKU/package.
+- price_value: numeric value only. confidence: 0.0 to 1.0.
 - observations/opportunities/evidence_checklist: 2-5 concise, specific bullets each.
 """.strip()
 
@@ -297,6 +308,44 @@ def _normalize_and_enrich(result: Dict[str, Any]) -> Dict[str, Any]:
         "priority_actions": [str(s) for s in (df.get("priority_actions") or [])[:4]],
     }
 
+    pricing_items = result.get("pricing", [])
+    if not isinstance(pricing_items, list):
+        pricing_items = []
+
+    normalized_pricing: List[Dict[str, Any]] = []
+    for item in pricing_items[:20]:
+        if not isinstance(item, dict):
+            continue
+
+        brand_or_sku = str(item.get("brand_or_sku", "")).strip()
+        package = str(item.get("package", "")).strip()
+        price_text = str(item.get("price_text", "")).strip()
+
+        try:
+            price_value = round(float(item.get("price_value", 0) or 0), 2)
+        except Exception:
+            price_value = 0.0
+
+        try:
+            confidence = round(float(item.get("confidence", 0) or 0), 2)
+        except Exception:
+            confidence = 0.0
+
+        if not (brand_or_sku or package or price_text or price_value > 0):
+            continue
+
+        normalized_pricing.append(
+            {
+                "brand_or_sku": brand_or_sku or "Unknown",
+                "package": package or "Unknown",
+                "price_text": price_text or (f"${price_value:.2f}" if price_value > 0 else "Unknown"),
+                "price_value": max(0.0, price_value),
+                "confidence": min(1.0, max(0.0, confidence)),
+            }
+        )
+
+    result["pricing"] = normalized_pricing
+
     findings = result.get("survey_findings", {})
     if not isinstance(findings, dict):
         findings = {}
@@ -399,6 +448,22 @@ def get_mock_analysis() -> Dict[str, Any]:
                 "Verify that Modelo Especial 12pk can and Corona Extra 12pk bottle each have at least 3 days of supply (thin facings risk out-of-stocks on peak weekend days).",
             ],
         },
+        "pricing": [
+            {
+                "brand_or_sku": "Modelo Especial",
+                "package": "12pk can",
+                "price_text": "$16.99",
+                "price_value": 16.99,
+                "confidence": 0.9,
+            },
+            {
+                "brand_or_sku": "Corona Extra",
+                "package": "12pk bottle",
+                "price_text": "$17.99",
+                "price_value": 17.99,
+                "confidence": 0.86,
+            },
+        ],
         "used_mock_data": True,
     }
     return _normalize_and_enrich(mock)

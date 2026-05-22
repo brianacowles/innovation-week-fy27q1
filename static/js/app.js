@@ -11,6 +11,7 @@ const previewImage = document.getElementById('previewImage');
 const summaryText = document.getElementById('summaryText');
 const insightsList = document.getElementById('insightsList');
 const brandTableBody = document.querySelector('#brandTable tbody');
+const pricingTableBody = document.querySelector('#pricingTable tbody');
 
 let shareChart = null;
 let countChart = null;
@@ -76,6 +77,43 @@ function renderTable(brands) {
     row.appendChild(countCell);
     row.appendChild(shareCell);
     brandTableBody.appendChild(row);
+  });
+}
+
+function renderPricing(pricing) {
+  pricingTableBody.innerHTML = '';
+
+  if (!pricing || !pricing.length) {
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+    cell.colSpan = 4;
+    cell.textContent = 'No prices detected from this image.';
+    row.appendChild(cell);
+    pricingTableBody.appendChild(row);
+    return;
+  }
+
+  pricing.forEach((item) => {
+    const row = document.createElement('tr');
+
+    const skuCell = document.createElement('td');
+    skuCell.textContent = item.brand_or_sku || 'Unknown';
+
+    const packageCell = document.createElement('td');
+    packageCell.textContent = item.package || 'Unknown';
+
+    const priceCell = document.createElement('td');
+    priceCell.textContent = item.price_text || 'Unknown';
+
+    const confidenceCell = document.createElement('td');
+    const rawConfidence = typeof item.confidence === 'number' ? item.confidence : 0;
+    confidenceCell.textContent = `${Math.round(rawConfidence * 100)}%`;
+
+    row.appendChild(skuCell);
+    row.appendChild(packageCell);
+    row.appendChild(priceCell);
+    row.appendChild(confidenceCell);
+    pricingTableBody.appendChild(row);
   });
 }
 
@@ -230,7 +268,9 @@ function renderResults(data) {
   summaryText.textContent = data.summary || 'No summary returned.';
 
   const brands = Array.isArray(data.brands) ? data.brands : [];
+  const pricing = Array.isArray(data.pricing) ? data.pricing : [];
   renderTable(brands);
+  renderPricing(pricing);
   renderInsights(data.insights || []);
   renderCharts(brands);
   renderDisplayFeedback(data.display_feedback || null);
